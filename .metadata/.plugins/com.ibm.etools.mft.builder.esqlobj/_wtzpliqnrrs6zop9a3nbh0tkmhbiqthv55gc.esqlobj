@@ -1,0 +1,33 @@
+CREATE PROCEDURE WBIMB_ESQL_SYS_LIB_is_atom(IN ref REFERENCE, IN refRoot REFERENCE, INOUT tempLocation REFERENCE)
+BEGIN
+
+	DECLARE isAtomResult REFERENCE TO tempLocation.is_atom;
+	CREATE LASTCHILD OF isAtomResult NAME 'result';
+	MOVE isAtomResult LASTCHILD NAME 'result';
+	--the storage for the boolean is localStackPtr.condition aka store.condition
+	CREATE FIELD tempLocation.REF_STACK.pathElement;
+
+	DECLARE stackPtr REFERENCE TO tempLocation.REF_STACK.pathElement;
+
+	IF (SAMEFIELD(ref, refRoot)) THEN
+		SET isAtomResult = TRUE;
+		RETURN;
+	ELSE
+		--walk up the path until the roots match
+		WHILE (NOT(SAMEFIELD(ref, refRoot))) DO
+			SET stackPtr = FIELDNAME(ref);
+			CREATE NEXTSIBLING OF stackPtr NAME 'pathElement';
+			MOVE stackPtr NEXTSIBLING NAME 'pathElement';
+			MOVE ref PARENT;
+		END WHILE;
+
+		MOVE stackPtr PREVIOUSSIBLING NAME 'pathElement';
+		DECLARE ref1 REFERENCE TO refRoot;
+		MOVE ref1 FIRSTCHILD NAME stackPtr;
+		IF (LASTMOVE(stackPtr)) THEN
+			CALL WBIMB_ESQL_SYS_LIB_isAtomHelper(refRoot, ref1, stackPtr, isAtomResult);
+		END IF;
+	END IF;	
+
+	DELETE FIELD tempLocation.REF_STACK;
+END;

@@ -1,0 +1,3 @@
+#Fri Sep 15 12:39:47 BST 2017
+runtimes=<?xml version\="1.0" encoding\="UTF-8"?><runtimes>\r\n  <runtime id\="com.ibm.ws.ast.st.runtime.v61.mb" id-set\="true" location\="C\:/Program Files (x86)/IBM/WMBT800/runtimes/mb_v61_stub" locked\="true" name\="Ap\u00E9ndice de WebSphere Message Broker" runtime-type-id\="com.ibm.ws.ast.st.runtime.v61.mb" stub\="true" timestamp\="0"/>\r\n</runtimes>
+eclipse.preferences.version=1

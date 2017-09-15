@@ -1,0 +1,45 @@
+CREATE PROCEDURE WBIMB_ESQL_SYS_LIB_isAtomHelper(IN refRoot REFERENCE, IN ref REFERENCE, IN stackPtr REFERENCE, INOUT resultStore REFERENCE)
+BEGIN
+	--iterate over the element
+	DECLARE iterator REFERENCE TO ref;
+	WHILE (LASTMOVE(iterator)) DO
+		--pop the stack
+		MOVE stackPtr PREVIOUSSIBLING NAME 'pathElement';
+		MOVE iterator FIRSTCHILD NAME stackPtr;
+		--check if this is the last item on the stack
+		DECLARE testElement REFERENCE TO stackPtr;
+		MOVE testElement PREVIOUSSIBLING REPEAT NAME;
+		IF (NOT(LASTMOVE(testElement))) THEN
+			--skip all null values in the summation
+			DECLARE ref REFERENCE TO iterator;
+			IF (LASTMOVE(ref)) THEN
+				IF (resultStore IS NULL) THEN
+					--this has not been initialized
+					SET resultStore = TRUE;
+				ELSE
+					SET resultStore = resultStore AND FALSE;
+				END IF;
+			END IF;
+
+			IF (NOT(SAMEFIELD(ref, refRoot))) THEN
+				MOVE ref NEXTSIBLING REPEAT NAME;
+				WHILE (LASTMOVE(ref)) DO
+					IF (resultStore IS NULL) THEN
+						--this has not been initialized
+						SET resultStore = TRUE;
+					ELSE
+						SET resultStore = resultStore AND FALSE;
+						RETURN;
+					END IF;
+					MOVE ref NEXTSIBLING REPEAT NAME;
+				END WHILE;
+				RETURN;
+			ELSE
+				RETURN;
+			END IF;
+		ELSE
+			CALL WBIMB_ESQL_SYS_LIB_isAtomHelper(refRoot, iterator, stackPtr, resultStore);
+		END IF;
+		MOVE iterator NEXTSIBLING REPEAT NAME;
+	END WHILE;
+END;
